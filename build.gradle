@@ -19,9 +19,13 @@ allprojects {
 		mavenCentral()
 		if (version.contains('-')) {
 			maven { url "https://repo.spring.io/milestone" }
+//			maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+//			maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
 		}
 		if (version.endsWith('-SNAPSHOT')) {
 			maven { url "https://repo.spring.io/snapshot" }
+//			maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+//			maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
 		}
 	}
 
