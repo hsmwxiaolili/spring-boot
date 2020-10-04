@@ -292,6 +292,7 @@ public class SpringApplication {
 
 	private Class<?> deduceMainApplicationClass() {
 		try {
+			// 通过stackTrace找到栈中的main方法，进而找到包含main方法的Class
 			StackTraceElement[] stackTrace = new RuntimeException().getStackTrace();
 			for (StackTraceElement stackTraceElement : stackTrace) {
 				if ("main".equals(stackTraceElement.getMethodName())) {
@@ -314,14 +315,22 @@ public class SpringApplication {
 	public ConfigurableApplicationContext run(String... args) {
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
+
 		DefaultBootstrapContext bootstrapContext = createBootstrapContext();
 		ConfigurableApplicationContext context = null;
 		Collection<SpringBootExceptionReporter> exceptionReporters = new ArrayList<>();
+
+		// 配置应用在headless模式下工作
 		configureHeadlessProperty();
+
+		// 获取SpringApplicationRunListener，监听整个启动流程中不同执行点事件
+		// SpringApplicationRunListeners类似与组合模式的用法
 		SpringApplicationRunListeners listeners = getRunListeners(args);
 		listeners.starting(bootstrapContext, this.mainApplicationClass);
+
 		try {
 			ApplicationArguments applicationArguments = new DefaultApplicationArguments(args);
+			// 构造容器环境
 			ConfigurableEnvironment environment = prepareEnvironment(listeners, bootstrapContext, applicationArguments);
 			configureIgnoreBeanInfo(environment);
 			Banner printedBanner = printBanner(environment);
@@ -329,7 +338,9 @@ public class SpringApplication {
 			context.setApplicationStartup(this.applicationStartup);
 			exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class,
 					new Class<?>[] { ConfigurableApplicationContext.class }, context);
+			// 在这里加载BeanDefinition
 			prepareContext(bootstrapContext, context, environment, listeners, applicationArguments, printedBanner);
+			// 调用spring的refresh()方法
 			refreshContext(context);
 			afterRefresh(context, applicationArguments);
 			stopWatch.stop();
